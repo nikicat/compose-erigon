@@ -11,17 +11,6 @@ services:
   erigon:
     image: thorax/erigon:${IMAGE_TAG:-latest}
     restart: unless-stopped
-    ports:
-      - 6060:6060 # metrics http
-      - 8545:8545 # http api
-      - 8546:8546 # ws api
-      - 8551:8551
-      - 30303:30303 # p2p v68
-      - 30303:30303/udp # p2p v68
-      - 30304:30304 # p2p v67
-      - 30304:30304/udp # p2p v67
-      - 42069:42069 # torrent
-      - 42069:42069/udp # torrent
     volumes:
       - ${ERIGON_DATADIR}:/data
     stop_grace_period: 2m
@@ -32,7 +21,7 @@ services:
       retries: 5
     command:
       - --internalcl
-      - --chain=sepolia
+      - --chain=${CHAIN}
       - --datadir=/data
       - --nat=pmp:${NAT_PMP_GATEWAY}
       - --http.api=eth,net,web3,erigon,engine
@@ -40,7 +29,7 @@ services:
       - --http.vhosts=*
       - --http.corsdomain=*
       - --ws
-      - --log.console.verbosity=debug
+      - --log.console.verbosity=${LOG_VERBOSITY}
       - --sentry.log-peer-info
       - --metrics
     <<: *logging
