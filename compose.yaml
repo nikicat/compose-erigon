@@ -11,7 +11,7 @@ services:
       timeout: 5s
       retries: 5
     command:
-      - --internalcl
+      #- --internalcl
       - --chain=${CHAIN}
       - --datadir=/data
       - --nat=pmp:${NAT_PMP_GATEWAY}
@@ -19,7 +19,39 @@ services:
       - --http.addr=0.0.0.0
       - --http.vhosts=*
       - --http.corsdomain=*
+      - --authrpc.addr=0.0.0.0
+      - --authrpc.port=8551
+      - --authrpc.vhosts=erigon
       - --ws
       - --log.console.verbosity=${LOG_VERBOSITY}
       - --sentry.log-peer-info
       - --metrics
+      - --rpc.returndata.limit=1048576 # rocketpool needs it
+    expose:
+      - 8551 # execution rpc
+  prysm:
+    build: docker/prysm
+    restart: unless-stopped
+    volumes:
+      - ${PRYSM_DATADIR}:/data
+      - ${ERIGON_DATADIR}:/erigon:ro
+    configs:
+      - source: prysm-config
+        target: /config.yaml
+    command:
+      - beacon-chain
+      - --accept-terms-of-use=true
+      - --datadir=/data
+      - --execution-endpoint=http://erigon:8551
+      - --jwt-secret=/erigon/jwt.hex
+      - --rpc-host=0.0.0.0
+      - --grpc-gateway-host=0.0.0.0
+      - --enable-upnp
+      - --config-file=/config.yaml
+    expose:
+      - 4000 # rpc
+      - 3500 # grpc
+
+configs:
+  prysm-config:
+    file: ./configs/prysm/${CHAIN}.yaml

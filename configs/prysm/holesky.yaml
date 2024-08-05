@@ -1,0 +1,3 @@
+holesky: true
+checkpoint-sync-url: https://holesky.beaconstate.ethstaker.cc/
+genesis-beacon-api-url: https://holesky.beaconstate.ethstaker.cc/
